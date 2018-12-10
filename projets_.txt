@@ -1,0 +1,108 @@
+Les devoirs/projets sont à faire par groupe de 3.
+Il faut une petite partie rédigée pour expliquer les choix techniques
+(max 20 pages) à rendre quelques jours avant la soutenance (voir mails
+pour la date exacte).  Prévoir un exposé qui ne dépassera pas 15mn
+(on vous arrêtera sinon). Les rôles de chaque membre du groupe doivent
+être précisés. Chaque projet a une partie recherche d'information et une
+implémentation.
+
+En cas de copie de codes/textes/figures trouvés sur internet ou par
+les promotions précédentes, CITEZ VOS SOURCES. Dans le cas contraire
+c'est du PLAGIAT et la sanction est la NOTE 0 pour le rapport, à
+l'appréciation du jury.
+
+Voici une liste de projets possibles, vous pouvez proposer le vôtre mais 
+je dois alors le valider.
+
+1) Implémenter en MPI un système de gestion de fichiers distribué
+partagé simplifié. Les primitives PUT fichier et GET fichier sont à
+implémenter. On peut imaginer une source unique de lectures/écritures
+mais plusieurs machines de stockage.  Possible répartition de charge
+à la round-robin (tourniquet). Attention: commencer par définir
+des scénarios types.
+
+2) Implémenter en MPI les outils nécessaires pour exécuter des
+algos distribués classiques et ainsi pouvoir mieux étudier leur
+comportement : graphe non complet (commmunications sur les arêtes,),
+nombre d'initiateurs quelconque (par exemple par tirage aléatoire de
+ceux qui doivent commencer par se mettre en attente de réception de
+message, ou par choix de l'expérimentateur). 
+Travail 1: chercher une solution dans la doc complète de MPI 3.1 
+Travail 2: implémentation avec de préférence des communications
+asynchrones et donc il y a des risques de problèmes au niveau de la
+terminaison...
+
+3) Dans une démarche pédagogique, simulation d'un algorithme distribué
+classique simple (élection par exemple) avec si possible une interface
+graphique. Le fichier représentant le graphe du réseau doit être
+fourni comme paramètre à l'exécution au format DIMACS avec une liste
+d'intiateurs. L'algorithme doit pouvoir être changé facilement (vers
+une API de simulation ?). Langage de programmation: Java ou C.
+
+4) Implémenter un ordonnanceur MPI de liste de tâches à
+réaliser. L'utilisateur fournit la liste des tâches (intitulé + durée)
+et elles sont affectées et exécutées par des machines clientes (distantes) par
+MPI. Les tâches sont dans un premier temps indépendantes et seulement
+simulées. Extensions possibles: 
+- les noms des tâches sont des noms d'exécutables ou de fonctions à exécuter.
+- les tâches ont des dépendances entre-elles
+(dépendances fournies par l'utilisateur sous forme de DAG).
+
+5) Etude du langage de programmation Cilk et comparaison avec OpenMP.
+La comparaison doit porter sur la syntaxe mais aussi sur les performances
+dans des cas d'utilisation classiques en particulier le tri en parallèle
+(choisir un ou deux algorithmes).
+Attention nécessite l'installation/compilation de cilkplus-GCC.
+
+6) Écrire un programme MPI pour calculer deux figures fractales IFS
+(Iterated Function System), le flocon de Koch et le dragon de Levy. Le
+programme utilisera la bibliothèque Cairo pour dessiner des lignes et
+permettra de spécifier la profondeur d'itération de la fonction de
+transformation. La taille du "papier" sera calculée en fonction de la
+profondeur d'itération.
+
+7) Écrire un programme MPI implémentant l'algorithme DPLL
+(Davis-Putnam-Logemann-Loveland) pour résoudre le problème
+SAT. Il sera possible de comparer la réponse du programme avec celle d'un autre
+solveur SAT, e.g., Minisat.
+
+8) Simuler, à l'aide d'un programme MPI, et des techniques de
+discrétisation, l'évolution de la température sur un objet fini
+d'une dimension et/ou deux dimensions (un rectangle par exemple). On
+partira d'un état dans lequel une partie de l'objet se trouve à une
+température différente. Voir https://en.wikipedia.org/wiki/Heat_equation
+pour les équations.
+
+9) Implémenter un programme permettant d'effectuer le traitement de
+grandes images, distribué avec MPI. 
+On implémentera au moins les algorithmes suivants:
+- box bluring (flouter) 
+- transformation couleur vers blanc/noir 
+- calcul de l'histogramme 
+- fusion pondérée de deux images
+ Le format de fichier des images doit être le format PPM.
+
+10) Multiplication de matrices rapide. Il existe plusieurs
+techniques pour accélérer (même en séquentiel) ce calcul:
+réduction du nombre de multiplications, meilleur gestion du
+cache processeur...
+Comparez la version séquentielle de base, sa version parallèlisée
+et les version améliorées en séquentiel et parallèle, MPI et OpenMP.
+
+11) Programmation Hybride OpenMP ET MPI ! Etudiez et
+programmer quelques opérations sur de très grands polynomes (au moins
+somme de polynômes, dérivée, primitive, produit,...) 
+en parallèle de sorte que votre programme soit hybride. Détailler
+les avantages et inconvénients. Possibilité d'envisager d'autres
+problèmes.
+
+12) Etude des fonctionnalités les plus avancées de OpenMP 4.5 par rapport
+à OpenMP 3.1. Documentation technique et pédagogique à faire illustrée
+par des exemples autres que ceux de la documentation officielle.
+
+13) Implémentation d'un article de recherche.
+"A Distributed Algorithm for Constructing a Minimum Diameter Spanning Tree"
+Bui, Butelle & Lavault 2004 (article disponible sur demande).
+D'abord implémenter l'algo APSP (all-pairs shortest paths) de l'article
+en MPI Asynchrone. Si cela fonctionne continuez dans l'implémentation
+de l'algo complet.

@@ -1,0 +1,11 @@
+Num; nom1;nom2;nom3;nom4 et/ou commentaire
+1;Leja;Guillemot;Rosse;AIR3
+2;Haibala;Labidi;Chabani;Diop AIR3
+3;Dupriez;Slaouti-Jegou;Morjane;AIR3
+4;Auger;Petitboulanger--Meleux;Rio;INFO3
+5;Mandende;Ben Ali;Goguelin; AIR3
+6;Bentahar;Abou Saleh;Moustaoui; INFO3
+7;Sekkat;Ferjani; Ouenniche ;INFO3
+8;Ayadi; Ouedraogo; Rabemanantsoa; INFO3 
+9;Kasmi; Meqqori;; AIR3
+
