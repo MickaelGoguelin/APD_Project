@@ -2,7 +2,8 @@
 #define DSFM_FCT_H
 
 /*
- * Définition des fonctions ici
- */
+ * Définition des fonctions
+*/
+	void sendFileToServers();
 
 #endif

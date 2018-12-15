@@ -20,7 +20,7 @@ int main( int argc, char **argv ) {
     MPI_Get_processor_name(name, &size);            //Récupération du hostname
     printf("Rang : %d\nMachine : %s\n----------\n", k, name);
 
-    
+    sendFileToServers();
 
     MPI_Finalize();                                 //End MPI
     
