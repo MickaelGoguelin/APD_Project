@@ -16,7 +16,7 @@ void sendFileToServers(){
     const char fileName[10] = "test.txt";
 
 	//Le tableau qui va contenir les morceaux du fichiers ( la taille du bloc est de 8K)
-	char buffer[8];
+char buffer[8];
 
 	//Le rang des ps
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
