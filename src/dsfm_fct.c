@@ -13,7 +13,7 @@ void sendFileToServers(){
     MPI_Offset offset;
 
 	//Nom du fichier
-    const char fileName[10] = "test.txt";
+    char fileName[FILENAME_LENGTH] = "test.txt";
 
 	//Le tableau qui va contenir les morceaux du fichiers ( la taille du bloc est de 8K)
 	char buffer[8];
@@ -55,10 +55,50 @@ void sendFileToServers(){
 				MPI_Send(buffer, 8, MPI_CHAR, i, 0, MPI_COMM_WORLD);
 			}
 			MPI_File_set_view(fh, i*8, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
-		} 
+
+		/*if(i >nbrBlocs)
+			i = 0;
+		*/
+		}
 		if(rank != 0) {
 			MPI_Recv(buffer, 8, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			printf("Je suis %d et j'ai reçu %s\n", rank, buffer);
 		}
 	}
  }
+
+	void sendInfoToLB(){
+		MPI_File fh;
+	    MPI_Offset offset, offsetRecv;
+		MPI_Request request;
+
+		//Le rang des ps
+		int rank;
+   		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+		 char fileName[FILENAME_LENGTH] = "test.txt";
+		//fileName = "test.txt";
+
+		char fileNameRecv [FILENAME_LENGTH];
+		//Ouverture du fichier
+    	MPI_File_open(MPI_COMM_WORLD, fileName, MPI_MODE_RDONLY, MPI_INFO_NULL, &fh);
+	
+		//La taille du fichier
+    	MPI_File_get_size(fh, &offset);
+
+		if( rank == 0){
+			MPI_Isend(&offset, 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &request);
+			MPI_Wait ( &request, MPI_STATUS_IGNORE );
+	
+			MPI_Isend(fileName, FILENAME_LENGTH, MPI_CHAR, 1, 0, MPI_COMM_WORLD, &request);
+			MPI_Wait ( &request, MPI_STATUS_IGNORE );
+		}else if (rank == 1){
+			MPI_Irecv(&offsetRecv, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,&request);
+			MPI_Wait ( &request, MPI_STATUS_IGNORE );
+			printf("Je suis %d et j'ai reçu %lld\n", rank, offsetRecv);
+		
+			MPI_Irecv(fileNameRecv, FILENAME_LENGTH, MPI_CHAR, 0, 0, MPI_COMM_WORLD,&request);
+			MPI_Wait ( &request, MPI_STATUS_IGNORE );			
+			printf("Je suis %d et j'ai reçu %s\n", rank, fileNameRecv);
+		}
+	}
