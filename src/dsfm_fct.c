@@ -6,13 +6,13 @@
 
 void sendFileToServers(){
 
-	int numprocs, rank;
+	int numprocs, rank, i;
 	int nbrBlocs;
 
     MPI_File fh;
     MPI_Offset offset;
 
-	// Nom du fichier
+	//Nom du fichier
     const char fileName[10] = "test.txt";
 
 	//Le tableau qui va contenir les morceaux du fichiers ( la taille du bloc est de 8K)
@@ -28,7 +28,7 @@ void sendFileToServers(){
     MPI_File_open(MPI_COMM_WORLD, fileName, MPI_MODE_RDONLY, MPI_INFO_NULL, &fh);
 	
 	//La taille du fichier
-    	MPI_File_get_size(fh, &offset);
+    MPI_File_get_size(fh, &offset);
 
 	//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
 	MPI_File_set_view(fh, 0, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
@@ -48,7 +48,7 @@ void sendFileToServers(){
 	//Sinon, il faut diviser la taille du fichier par 8 et envoyer le fichier par tranche a nbBlocs serveurs
 	} else {
 		nbrBlocs = offset/8;
-		for(int i=1; i<=nbrBlocs; i++){
+		for(i=1; i<=nbrBlocs; i++){
 			if(rank==0)
 			{
 				MPI_File_read(fh, buffer, 8, MPI_CHAR, MPI_STATUS_IGNORE);
