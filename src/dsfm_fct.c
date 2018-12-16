@@ -55,6 +55,7 @@ void sendFileToServers(){
 			if(rank==0)
 			{
 				MPI_File_read(fh, buffer, 7, MPI_CHAR, MPI_STATUS_IGNORE);
+				//printf("buffer before send %s\n",buffer);
 				MPI_Send(buffer, 8, MPI_CHAR, server, 0, MPI_COMM_WORLD);
 				printf("Je suis %d et j'ai envoye %s au serveur %d\n", rank, buffer,server);
 			}		
@@ -64,6 +65,7 @@ void sendFileToServers(){
 			}
 		}
 	}
+	MPI_File_close(&fh);
  }
 
 	void sendInfoToLB(){
