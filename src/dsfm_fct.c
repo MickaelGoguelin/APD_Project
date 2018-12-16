@@ -30,9 +30,6 @@ void sendFileToServers(){
 	//La taille du fichier
     MPI_File_get_size(fh, &offset);
 
-	//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
-	MPI_File_set_view(fh, 0, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
-
 	//Tester si la taille du fichier est <= 8 => on envoi tout le contenu du fichier à un seul serveur
 	if(offset <= 8){
 		if(rank==0)
@@ -48,21 +45,22 @@ void sendFileToServers(){
 	//Sinon, il faut diviser la taille du fichier par 8 et envoyer le fichier par tranche a nbBlocs serveurs
 	} else {
 		nbrBlocs = offset/8;
-		for(i=1; i<=nbrBlocs; i++){
+		int server = 1;
+		for(i=0; i<=nbrBlocs; i++){	
+			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
+			MPI_File_set_view(fh, i*8, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
+
+			server = roundRobbin(server);	
 			if(rank==0)
 			{
 				MPI_File_read(fh, buffer, 8, MPI_CHAR, MPI_STATUS_IGNORE);
-				MPI_Send(buffer, 8, MPI_CHAR, i, 0, MPI_COMM_WORLD);
+				MPI_Send(buffer, 8, MPI_CHAR, server, 0, MPI_COMM_WORLD);
+				printf("Je suis %d et j'ai envoye %s au serveur %d\n", rank, buffer,server);
+			}		
+			if(rank == server) {
+				MPI_Recv(buffer, 8, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				printf("Je suis %d et j'ai reçu %s\n", rank, buffer);
 			}
-			MPI_File_set_view(fh, i*8, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
-
-		/*if(i >nbrBlocs)
-			i = 0;
-		*/
-		}
-		if(rank != 0) {
-			MPI_Recv(buffer, 8, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			printf("Je suis %d et j'ai reçu %s\n", rank, buffer);
 		}
 	}
  }
@@ -101,4 +99,15 @@ void sendFileToServers(){
 			MPI_Wait ( &request, MPI_STATUS_IGNORE );			
 			printf("Je suis %d et j'ai reçu %s\n", rank, fileNameRecv);
 		}
+	}
+
+	int roundRobbin(int server){
+		int nbrProcs;
+		//Le nombre de ps
+		MPI_Comm_size(MPI_COMM_WORLD, &nbrProcs);
+
+		server = (server + 1)%nbrProcs;
+		if(server == 0)
+			server ++;
+		return server;
 	}

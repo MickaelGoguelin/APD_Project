@@ -22,9 +22,15 @@ int main( int argc, char **argv ) {
 
 	//Le client envoie le nombre de blocs et le nom du fichier au serveur LB
 	sendInfoToLB();
-
+	printf("\n----------\n");
 	//Le client envoie le fichier en block aux serveurs de stockage
     sendFileToServers();
+
+	/*int server = 1, i;
+	for(i = 0; i<6; i++){
+		server = roundRobbin(server);
+		if(k==0) printf("Server round Robbiné : %d\n", server);
+	}*/
 
     MPI_Finalize();                                 //End MPI
     

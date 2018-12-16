@@ -8,5 +8,6 @@
 */
 	void sendFileToServers();
 	void sendInfoToLB();
+	int roundRobbin(int server);
 
 #endif
