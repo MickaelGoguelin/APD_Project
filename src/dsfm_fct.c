@@ -69,9 +69,20 @@ void sendFileToServers(){
 	MPI_File_close(&fh);
  }
 
+	int roundRobbin(int server){
+		int nbrProcs;
+		//Le nombre de ps
+		MPI_Comm_size(MPI_COMM_WORLD, &nbrProcs);
+
+		server = (server + 1)%nbrProcs;
+		if(server == 0)
+			server ++;
+		return server;
+	}
+
 	void sendInfoToLB(){
 		MPI_File fh;
-	    MPI_Offset offset, offsetRecv;
+	    MPI_Offset offset, offsetRecv, nbrBlocs, nbrBlocsRecv;
 		MPI_Request request;
 
 		//Le rang des ps
@@ -87,35 +98,34 @@ void sendFileToServers(){
 	
 		//La taille du fichier
     	MPI_File_get_size(fh, &offset);
+		nbrBlocs = offset/8;
+		offsetRecv = 0;
 
 		if( rank == 0){
 			MPI_Isend(&offset, 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &request);
-			MPI_Wait ( &request, MPI_STATUS_IGNORE );
+			MPI_Wait (&request, MPI_STATUS_IGNORE );
+			//printf("Je suis %d et j'ai envoye un fichier de taille %lld \n", rank,offset);			
 	
 			MPI_Isend(fileName, FILENAME_LENGTH, MPI_CHAR, 1, 0, MPI_COMM_WORLD, &request);
+			MPI_Wait (&request, MPI_STATUS_IGNORE );
+
+			MPI_Isend(&nbrBlocs, 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &request);
 			MPI_Wait ( &request, MPI_STATUS_IGNORE );
+			//printf("Je suis %d et j'ai envoye %lld blocs\n", rank, nbrBlocs);
 		}else if (rank == 1){
 			MPI_Irecv(&offsetRecv, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,&request);
-			MPI_Wait ( &request, MPI_STATUS_IGNORE );
-			printf("Je suis %d et j'ai reçu %lld\n", rank, offsetRecv);
+			MPI_Wait (&request, MPI_STATUS_IGNORE );
+			printf("Je suis %d et j'ai reçu un fichier de taille %lld \n", rank, offsetRecv);
 		
 			MPI_Irecv(fileNameRecv, FILENAME_LENGTH, MPI_CHAR, 0, 0, MPI_COMM_WORLD,&request);
 			MPI_Wait ( &request, MPI_STATUS_IGNORE );			
-			printf("Je suis %d et j'ai reçu %s\n", rank, fileNameRecv);
+			printf("Je suis %d et j'ai reçu un fichier nommé %s\n", rank, fileNameRecv);
+
+			MPI_Irecv(&nbrBlocsRecv, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,&request);
+			MPI_Wait (&request, MPI_STATUS_IGNORE );			
+			printf("Je suis %d et j'ai reçu %lld blocs\n", rank, nbrBlocsRecv);
 		}
 	}
-
-	int roundRobbin(int server){
-		int nbrProcs;
-		//Le nombre de ps
-		MPI_Comm_size(MPI_COMM_WORLD, &nbrProcs);
-
-		server = (server + 1)%nbrProcs;
-		if(server == 0)
-			server ++;
-		return server;
-	}
-
 
 /*void writeFileToDisk1(const char* nomFichier, char* buffer)
 {
