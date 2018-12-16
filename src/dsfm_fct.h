@@ -6,6 +6,7 @@
 #define FILENAME "test.txt" 
 #define CUSTOMER 0
 #define LB 1
+#define FIRST_SERVER 2
 
 
 
@@ -26,5 +27,6 @@
 	void readBloc(const char* nom_fichier, char* bloc, int* curseur, int* status);
 	void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status);
 	void displayBlocs(const char* bloc);
+	void getBlocsFromServers(int nbrBlocs);
 
 #endif

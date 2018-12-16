@@ -21,27 +21,14 @@ int main( int argc, char **argv ) {
     printf("Rang : %d\nMachine : %s\n----------\n", k, name);
 
 	//Le client (rang = 0) envoie le nombre de blocs, la taille du fichier et le nom du fichier au serveur LB ( rang = 1)
-	sendInfoToLB();
+	//sendInfoToLB();
 	printf("\n----------\n");
 	//Le client (rang = 0) envoie le fichier en block aux serveurs de stockage ( rang = 1 , rang = 2, rang = 3)
     sendFileToServers();
 
-	/*
 	//test readBloc
+	getBlocsFromServers(4);
 
-	char bloc [TAILLE_BUFFER];
-	int curseur =0;
-	int status;
-	//readFileFromDisk("test.txt", bloc,  &status);
-	readBloc("test.txt",bloc, &curseur, &status);
-	while(status == 0){
-		writeFileToDisk("test1.txt",bloc);
-		readBloc("test.txt",bloc, &curseur, &status);
-	}
-	writeFileToDisk("test1.txt",bloc);
-	
-	//displayBlocs(bloc);
-	*/
     MPI_Finalize();                                 //End MPI
     
     return EXIT_SUCCESS;
