@@ -1,4 +1,5 @@
 #include "dsfm_fct.h"
+#include <unistd.h>
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,9 +116,8 @@ void sendFileToServers(){
 		return server;
 	}
 
-#include "write.h"
 
-void ecrire_fichier_sur_disque1(const char* nomFichier, char* buffer)
+/*void writeFileToDisk1(const char* nomFichier, char* buffer)
 {
     int res_fprintf;
     FILE *fichier = fopen(nomFichier,"a");
@@ -131,9 +131,9 @@ void ecrire_fichier_sur_disque1(const char* nomFichier, char* buffer)
     }
     
     fclose(fichier);
-}
+}*/
 
-void ecrire_fichier_sur_disque(const char* nomFichier, char* buffer)
+void writeFileToDisk(const char* nomFichier, char* buffer)
 {
     int res_fputc;
     FILE *fichier = fopen(nomFichier,"a");
@@ -159,7 +159,7 @@ void ecrire_fichier_sur_disque(const char* nomFichier, char* buffer)
 }
 
 
- void lire_bloc(const char* nom_fichier, char* bloc, int* curseur, int* status)
+ void readBloc(const char* nom_fichier, char* bloc, int* curseur, int* status)
  {
      
      FILE* fichier = fopen(nom_fichier,"r");
@@ -192,14 +192,14 @@ void ecrire_fichier_sur_disque(const char* nomFichier, char* buffer)
  }
  
  
- void lire_fichier_sur_disque(const char* nom_fichier, char* bloc,  int* status)
+ void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status)
  {
     int status_lire_bloc;
     int curseur=0;
      do{
-        lire_bloc(nom_fichier,bloc,&curseur,&status_lire_bloc);
+        readBloc(nom_fichier,bloc,&curseur,&status_lire_bloc);
         if(bloc != NULL )
-            afficher_bloc(bloc);
+            displayBlocs(bloc);
         printf("status_lire_bloc: %d\n", status_lire_bloc);
     }
     while( status_lire_bloc == 0 );
@@ -210,7 +210,7 @@ void ecrire_fichier_sur_disque(const char* nomFichier, char* buffer)
      
  }
  
- void afficher_bloc(const char* bloc)
+ void displayBlocs(const char* bloc)
  {
      printf("Bloc vaut: ");//
     for(int i=0; i<TAILLE_BUFFER; i++)
