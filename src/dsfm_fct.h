@@ -2,9 +2,10 @@
 #define DSFM_FCT_H
 #define ROOT_DIR "/tmp/AIR3_G5_APD/"
 #define FILENAME_LENGTH 100
-#define TAILLE_NOM_FICHIER_MAX 100
-#define TAILLE_BUFFER 8
+#define SIZE_BUFFER 8
 #define FILENAME "test.txt" 
+#define CUSTOMER 0
+#define LB 1
 
 
 

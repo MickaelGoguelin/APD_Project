@@ -17,7 +17,7 @@ void sendFileToServers(){
     char fileName[FILENAME_LENGTH] = FILENAME;
 
 	//Le tableau qui va contenir les morceaux du fichiers ( la taille du bloc est de 4096 octets)
-	char buffer[TAILLE_BUFFER];
+	char buffer[SIZE_BUFFER];
 
 	//Le rang des ps
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -31,37 +31,37 @@ void sendFileToServers(){
 	//La taille du fichier
     MPI_File_get_size(fh, &offset);
 
-	//Tester si la taille du fichier est <= TAILLE_BUFFER => on envoi tout le contenu du fichier à un seul serveur
-	if(offset <= TAILLE_BUFFER){
-		if(rank==0)
+	//Tester si la taille du fichier est <= SIZE_BUFFER => on envoi tout le contenu du fichier à un seul serveur
+	if(offset <= SIZE_BUFFER){
+		if(rank==CUSTOMER)
 		{
 			MPI_File_read(fh, buffer, offset, MPI_CHAR, MPI_STATUS_IGNORE);
-			MPI_Send(buffer, offset, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
+			MPI_Send(buffer, offset, MPI_CHAR, LB, 0, MPI_COMM_WORLD);
 		}
 		MPI_File_set_view(fh, offset, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
 		if(rank == 1) {
-			MPI_Recv(buffer, offset, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			MPI_Recv(buffer, offset, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			printf("Je suis %d et j'ai reçu %s\n", rank, buffer);
 		}
-	//Sinon, il faut diviser la taille du fichier par TAILLE_BUFFER et envoyer le fichier par tranche a nbBlocs serveurs
+	//Sinon, il faut diviser la taille du fichier par SIZE_BUFFER et envoyer le fichier par tranche a nbBlocs serveurs
 	} else {
-		nbrBlocs = offset/TAILLE_BUFFER;
+		nbrBlocs = offset/SIZE_BUFFER;
 		int server = 1;
-		char bufferRecv[TAILLE_BUFFER];
+		char bufferRecv[SIZE_BUFFER];
 		for(i=0; i<=nbrBlocs; i++){	
 			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
-			MPI_File_set_view(fh, i*TAILLE_BUFFER, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
+			MPI_File_set_view(fh, i*SIZE_BUFFER, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
 
 			server = roundRobbin(server);	
-			if(rank==0)
+			if(rank==CUSTOMER)
 			{
-				MPI_File_read(fh, buffer, TAILLE_BUFFER - 1, MPI_CHAR, MPI_STATUS_IGNORE);
+				MPI_File_read(fh, buffer, SIZE_BUFFER - 1, MPI_CHAR, MPI_STATUS_IGNORE);
 				//printf("buffer before send %s\n",buffer);
-				MPI_Send(buffer, TAILLE_BUFFER, MPI_CHAR, server, 0, MPI_COMM_WORLD);
+				MPI_Send(buffer, SIZE_BUFFER, MPI_CHAR, server, 0, MPI_COMM_WORLD);
 				printf("Je suis %d et j'ai envoye %s au serveur %d\n", rank, buffer,server);
 			}		
 			if(rank == server) {
-				MPI_Recv(bufferRecv, TAILLE_BUFFER, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				MPI_Recv(bufferRecv, SIZE_BUFFER, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
 			}
 		}
@@ -97,30 +97,30 @@ void sendFileToServers(){
 	
 		//La taille du fichier
     	MPI_File_get_size(fh, &offset);
-		nbrBlocs = offset/TAILLE_BUFFER;
+		nbrBlocs = offset/SIZE_BUFFER;
 		offsetRecv = 0;
 
-		if( rank == 0){
-			MPI_Isend(&offset, 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &request);
+		if( rank == CUSTOMER){
+			MPI_Isend(&offset, 1, MPI_INT, LB, 0, MPI_COMM_WORLD, &request);
 			MPI_Wait (&request, MPI_STATUS_IGNORE );
 			//printf("Je suis %d et j'ai envoye un fichier de taille %lld \n", rank,offset);			
 	
-			MPI_Isend(fileName, FILENAME_LENGTH, MPI_CHAR, 1, 0, MPI_COMM_WORLD, &request);
+			MPI_Isend(fileName, FILENAME_LENGTH, MPI_CHAR, LB, 0, MPI_COMM_WORLD, &request);
 			MPI_Wait (&request, MPI_STATUS_IGNORE );
 
-			MPI_Isend(&nbrBlocs, 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &request);
+			MPI_Isend(&nbrBlocs, 1, MPI_INT, LB, 0, MPI_COMM_WORLD, &request);
 			MPI_Wait ( &request, MPI_STATUS_IGNORE );
 			//printf("Je suis %d et j'ai envoye %lld blocs\n", rank, nbrBlocs);
 		}else if (rank == 1){
-			MPI_Irecv(&offsetRecv, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,&request);
+			MPI_Irecv(&offsetRecv, 1, MPI_INT, CUSTOMER, 0, MPI_COMM_WORLD,&request);
 			MPI_Wait (&request, MPI_STATUS_IGNORE );
 			printf("Je suis %d et j'ai reçu un fichier de taille %lld \n", rank, offsetRecv);
 		
-			MPI_Irecv(fileNameRecv, FILENAME_LENGTH, MPI_CHAR, 0, 0, MPI_COMM_WORLD,&request);
+			MPI_Irecv(fileNameRecv, FILENAME_LENGTH, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD,&request);
 			MPI_Wait ( &request, MPI_STATUS_IGNORE );			
 			printf("Je suis %d et j'ai reçu un fichier nommé %s\n", rank, fileNameRecv);
 
-			MPI_Irecv(&nbrBlocsRecv, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,&request);
+			MPI_Irecv(&nbrBlocsRecv, 1, MPI_INT, CUSTOMER, 0, MPI_COMM_WORLD,&request);
 			MPI_Wait (&request, MPI_STATUS_IGNORE );			
 			printf("Je suis %d et j'ai reçu %lld blocs\n", rank, nbrBlocsRecv);
 		}
@@ -161,7 +161,7 @@ void writeFileToDisk(const char* nomFichier, char* buffer)
             }
             i++;
         }
-        while(res_fputc != EOF && i<TAILLE_BUFFER);
+        while(res_fputc != EOF && i<SIZE_BUFFER);
     }
     
     fclose(fichier);
@@ -169,8 +169,7 @@ void writeFileToDisk(const char* nomFichier, char* buffer)
 
 
  void readBloc(const char* nom_fichier, char* bloc, int* curseur, int* status)
- {
-     
+ {     
      FILE* fichier = fopen(nom_fichier,"r");
      if (fichier == NULL){
          printf("Erreur dans la lecture du fichier, celui-ci est absent, fonction lire_bloc\n");
@@ -190,13 +189,12 @@ void writeFileToDisk(const char* nomFichier, char* buffer)
             bloc[nb_char_lu] = char_lu;
         nb_char_lu++;
      }
-     while( (nb_char_lu < TAILLE_BUFFER) && (char_lu != EOF) );
+     while( (nb_char_lu < SIZE_BUFFER) && (char_lu != EOF) );
      *curseur = *curseur + nb_char_lu;
      if(char_lu == EOF)
          *status = 1;
      else
         *status = 0;
-     
      fclose(fichier);
  }
  
@@ -208,26 +206,20 @@ void writeFileToDisk(const char* nomFichier, char* buffer)
         readBloc(nom_fichier,bloc,&curseur,&status_lire_bloc);
         if(bloc != NULL )
             displayBlocs(bloc);
-        printf("status_lire_bloc: %d\n", status_lire_bloc);
+        //printf("status_lire_bloc: %d\n", status_lire_bloc);
     }
     while( status_lire_bloc == 0 );
     
     *status = status_lire_bloc;
-    
-    
-     
  }
  
  void displayBlocs(const char* bloc)
  {
-     printf("Bloc vaut: ");//
-    for(int i=0; i<TAILLE_BUFFER; i++)
+     printf("Bloc vaut: ");
+    for(int i=0; i<SIZE_BUFFER; i++)
     {
          printf("%c" , bloc[i]);
     }
     printf("\n");
 }
-
-
-
 

@@ -26,6 +26,22 @@ int main( int argc, char **argv ) {
 	//Le client (rang = 0) envoie le fichier en block aux serveurs de stockage ( rang = 1 , rang = 2, rang = 3)
     sendFileToServers();
 
+	/*
+	//test readBloc
+
+	char bloc [TAILLE_BUFFER];
+	int curseur =0;
+	int status;
+	//readFileFromDisk("test.txt", bloc,  &status);
+	readBloc("test.txt",bloc, &curseur, &status);
+	while(status == 0){
+		writeFileToDisk("test1.txt",bloc);
+		readBloc("test.txt",bloc, &curseur, &status);
+	}
+	writeFileToDisk("test1.txt",bloc);
+	
+	//displayBlocs(bloc);
+	*/
     MPI_Finalize();                                 //End MPI
     
     return EXIT_SUCCESS;
