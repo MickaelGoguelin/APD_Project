@@ -200,7 +200,6 @@ void writeFileToDisk(const char* nomFichier, char* buffer)
      fclose(fichier);
  }
  
- 
  void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status)
  {
     int status_lire_bloc;
