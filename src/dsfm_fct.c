@@ -114,3 +114,112 @@ void sendFileToServers(){
 			server ++;
 		return server;
 	}
+
+#include "write.h"
+
+void ecrire_fichier_sur_disque1(const char* nomFichier, char* buffer)
+{
+    int res_fprintf;
+    FILE *fichier = fopen(nomFichier,"a");
+    if(fichier == NULL)
+        printf("Erreur dans la creation du fichier, fonction ecrire_fichier_sur_disque\n");
+    else{
+        res_fprintf = fprintf(fichier,buffer);
+        if(res_fprintf < 0){
+            printf("Erreur lors de l'écriture du fichier sur disque, fonction ecrire_fichier_sur_disque\n");
+        }
+    }
+    
+    fclose(fichier);
+}
+
+void ecrire_fichier_sur_disque(const char* nomFichier, char* buffer)
+{
+    int res_fputc;
+    FILE *fichier = fopen(nomFichier,"a");
+    if(fichier == NULL)
+        printf("Erreur dans la creation du fichier, fonction ecrire_fichier_sur_disque\n");
+    
+    else{
+        int i = 0;
+        do{
+            if(buffer[i] != EOF) // on fait ce test au cas où le bloc n'est pas rempli au max car c'est le dernier bloc du fichier. on n'ecrit pas le caractère EOF.
+                res_fputc = fputc(buffer[i],fichier); 
+            else
+                res_fputc = EOF; // on n'arrete d'écrire le bloc dans le fichier dès qu'on lit EOF
+            if(res_fputc == EOF){ // on test si l'écriture sur le fichier c'est bien passée sinon on sort de la boucle et on affiche le message d'erreur suivant
+                printf("Erreur lors de l'écriture du fichier sur disque ou ecriture d'un bloc pas rempli au max, fonction ecrire_fichier_sur_disque\n");
+            }
+            i++;
+        }
+        while(res_fputc != EOF && i<TAILLE_BUFFER);
+    }
+    
+    fclose(fichier);
+}
+
+
+ void lire_bloc(const char* nom_fichier, char* bloc, int* curseur, int* status)
+ {
+     
+     FILE* fichier = fopen(nom_fichier,"r");
+     if (fichier == NULL){
+         printf("Erreur dans la lecture du fichier, celui-ci est absent, fonction lire_bloc\n");
+        *status = -1;
+        bloc = NULL;
+     }
+     int nb_char_lu = 0;
+     char char_lu;
+     if(fseek(fichier, *curseur, SEEK_SET)){
+         printf("Erreur lors du deplacement du curseur dans le fichier, fonction lire_bloc}\n");
+         *status = -1;
+     }
+         
+     do{
+        char_lu=fgetc(fichier);
+        //if(char_lu != EOF)
+            bloc[nb_char_lu] = char_lu;
+        nb_char_lu++;
+     }
+     while( (nb_char_lu < TAILLE_BUFFER) && (char_lu != EOF) );
+     *curseur = *curseur + nb_char_lu;
+     if(char_lu == EOF)
+         *status = 1;
+     else
+        *status = 0;
+     
+     fclose(fichier);
+ }
+ 
+ 
+ void lire_fichier_sur_disque(const char* nom_fichier, char* bloc,  int* status)
+ {
+    int status_lire_bloc;
+    int curseur=0;
+     do{
+        lire_bloc(nom_fichier,bloc,&curseur,&status_lire_bloc);
+        if(bloc != NULL )
+            afficher_bloc(bloc);
+        printf("status_lire_bloc: %d\n", status_lire_bloc);
+    }
+    while( status_lire_bloc == 0 );
+    
+    *status = status_lire_bloc;
+    
+    
+     
+ }
+ 
+ void afficher_bloc(const char* bloc)
+ {
+     printf("Bloc vaut: ");//
+    for(int i=0; i<TAILLE_BUFFER; i++)
+    {
+         printf("%c" , bloc[i]);
+    }
+    printf("\n");
+}
+
+
+
+
