@@ -3,7 +3,8 @@
 #define ROOT_DIR "/tmp/AIR3_G5_APD/"
 #define FILENAME_LENGTH 100
 #define TAILLE_NOM_FICHIER_MAX 100
-#define TAILLE_BUFFER 8 
+#define TAILLE_BUFFER 8
+#define FILENAME "test.txt" 
 
 
 

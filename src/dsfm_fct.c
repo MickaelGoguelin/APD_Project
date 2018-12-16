@@ -14,10 +14,10 @@ void sendFileToServers(){
     MPI_Offset offset;
 
 	//Nom du fichier
-    char fileName[FILENAME_LENGTH] = "test.txt";
+    char fileName[FILENAME_LENGTH] = FILENAME;
 
-	//Le tableau qui va contenir les morceaux du fichiers ( la taille du bloc est de 8K)
-	char buffer[8];
+	//Le tableau qui va contenir les morceaux du fichiers ( la taille du bloc est de 4096 octets)
+	char buffer[TAILLE_BUFFER];
 
 	//Le rang des ps
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -31,8 +31,8 @@ void sendFileToServers(){
 	//La taille du fichier
     MPI_File_get_size(fh, &offset);
 
-	//Tester si la taille du fichier est <= 8 => on envoi tout le contenu du fichier à un seul serveur
-	if(offset <= 8){
+	//Tester si la taille du fichier est <= TAILLE_BUFFER => on envoi tout le contenu du fichier à un seul serveur
+	if(offset <= TAILLE_BUFFER){
 		if(rank==0)
 		{
 			MPI_File_read(fh, buffer, offset, MPI_CHAR, MPI_STATUS_IGNORE);
@@ -43,25 +43,25 @@ void sendFileToServers(){
 			MPI_Recv(buffer, offset, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			printf("Je suis %d et j'ai reçu %s\n", rank, buffer);
 		}
-	//Sinon, il faut diviser la taille du fichier par 8 et envoyer le fichier par tranche a nbBlocs serveurs
+	//Sinon, il faut diviser la taille du fichier par TAILLE_BUFFER et envoyer le fichier par tranche a nbBlocs serveurs
 	} else {
-		nbrBlocs = offset/8;
+		nbrBlocs = offset/TAILLE_BUFFER;
 		int server = 1;
-		char bufferRecv[8];
+		char bufferRecv[TAILLE_BUFFER];
 		for(i=0; i<=nbrBlocs; i++){	
 			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
-			MPI_File_set_view(fh, i*8, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
+			MPI_File_set_view(fh, i*TAILLE_BUFFER, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
 
 			server = roundRobbin(server);	
 			if(rank==0)
 			{
-				MPI_File_read(fh, buffer, 7, MPI_CHAR, MPI_STATUS_IGNORE);
+				MPI_File_read(fh, buffer, TAILLE_BUFFER - 1, MPI_CHAR, MPI_STATUS_IGNORE);
 				//printf("buffer before send %s\n",buffer);
-				MPI_Send(buffer, 8, MPI_CHAR, server, 0, MPI_COMM_WORLD);
+				MPI_Send(buffer, TAILLE_BUFFER, MPI_CHAR, server, 0, MPI_COMM_WORLD);
 				printf("Je suis %d et j'ai envoye %s au serveur %d\n", rank, buffer,server);
 			}		
 			if(rank == server) {
-				MPI_Recv(bufferRecv, 8, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				MPI_Recv(bufferRecv, TAILLE_BUFFER, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
 			}
 		}
@@ -89,8 +89,7 @@ void sendFileToServers(){
 		int rank;
    		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-		 char fileName[FILENAME_LENGTH] = "test.txt";
-		//fileName = "test.txt";
+		char fileName[FILENAME_LENGTH] = FILENAME;
 
 		char fileNameRecv [FILENAME_LENGTH];
 		//Ouverture du fichier
@@ -98,7 +97,7 @@ void sendFileToServers(){
 	
 		//La taille du fichier
     	MPI_File_get_size(fh, &offset);
-		nbrBlocs = offset/8;
+		nbrBlocs = offset/TAILLE_BUFFER;
 		offsetRecv = 0;
 
 		if( rank == 0){
