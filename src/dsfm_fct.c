@@ -46,6 +46,7 @@ void sendFileToServers(){
 	} else {
 		nbrBlocs = offset/8;
 		int server = 1;
+		char bufferRecv[8];
 		for(i=0; i<=nbrBlocs; i++){	
 			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
 			MPI_File_set_view(fh, i*8, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
@@ -53,13 +54,13 @@ void sendFileToServers(){
 			server = roundRobbin(server);	
 			if(rank==0)
 			{
-				MPI_File_read(fh, buffer, 8, MPI_CHAR, MPI_STATUS_IGNORE);
+				MPI_File_read(fh, buffer, 7, MPI_CHAR, MPI_STATUS_IGNORE);
 				MPI_Send(buffer, 8, MPI_CHAR, server, 0, MPI_COMM_WORLD);
 				printf("Je suis %d et j'ai envoye %s au serveur %d\n", rank, buffer,server);
 			}		
 			if(rank == server) {
-				MPI_Recv(buffer, 8, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-				printf("Je suis %d et j'ai reçu %s\n", rank, buffer);
+				MPI_Recv(bufferRecv, 8, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
 			}
 		}
 	}
