@@ -20,6 +20,10 @@ int main( int argc, char **argv ) {
     MPI_Get_processor_name(name, &size);            //Récupération du hostname
     printf("Rang : %d\nMachine : %s\n----------\n", k, name);
 
+	//Le client envoie le nombre de blocs et le nom du fichier au serveur LB
+	sendInfoToLB();
+	printf("\n----------\n");
+	//Le client envoie le fichier en block aux serveurs de stockage
     sendFileToServers();
 
     MPI_Finalize();                                 //End MPI
