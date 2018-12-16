@@ -48,6 +48,8 @@ void sendFileToServers(){
 		nbrBlocs = offset/SIZE_BUFFER;
 		int server = LB;
 		char bufferRecv[SIZE_BUFFER];
+		char str[FILENAME_LENGTH];
+		//char a[5]="bloc";
 		for(i=0; i<=nbrBlocs; i++){	
 			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
 			MPI_File_set_view(fh, i*SIZE_BUFFER, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
@@ -62,6 +64,9 @@ void sendFileToServers(){
 			}		
 			if(rank == server) {
 				MPI_Recv(bufferRecv, SIZE_BUFFER, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				//Inserer dans chaque serveur des fichiers qui contiennent le contenu des blocs
+				sprintf(str, "%d", server);
+				writeFileToDisk(str, bufferRecv);
 				printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
 			}
 		}
