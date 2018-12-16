@@ -39,14 +39,14 @@ void sendFileToServers(){
 			MPI_Send(buffer, offset, MPI_CHAR, LB, 0, MPI_COMM_WORLD);
 		}
 		MPI_File_set_view(fh, offset, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
-		if(rank == 1) {
+		if(rank == LB) {
 			MPI_Recv(buffer, offset, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			printf("Je suis %d et j'ai reçu %s\n", rank, buffer);
 		}
 	//Sinon, il faut diviser la taille du fichier par SIZE_BUFFER et envoyer le fichier par tranche a nbBlocs serveurs
 	} else {
 		nbrBlocs = offset/SIZE_BUFFER;
-		int server = 1;
+		int server = LB;
 		char bufferRecv[SIZE_BUFFER];
 		for(i=0; i<=nbrBlocs; i++){	
 			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
@@ -111,7 +111,7 @@ void sendFileToServers(){
 			MPI_Isend(&nbrBlocs, 1, MPI_INT, LB, 0, MPI_COMM_WORLD, &request);
 			MPI_Wait ( &request, MPI_STATUS_IGNORE );
 			//printf("Je suis %d et j'ai envoye %lld blocs\n", rank, nbrBlocs);
-		}else if (rank == 1){
+		}else if (rank == LB){
 			MPI_Irecv(&offsetRecv, 1, MPI_INT, CUSTOMER, 0, MPI_COMM_WORLD,&request);
 			MPI_Wait (&request, MPI_STATUS_IGNORE );
 			printf("Je suis %d et j'ai reçu un fichier de taille %lld \n", rank, offsetRecv);
