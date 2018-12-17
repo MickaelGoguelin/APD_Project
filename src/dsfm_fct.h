@@ -18,18 +18,17 @@
 	void sendFileToServers();
 	void sendInfoToLB();
 	int roundRobbin(int server);
-	void writeFileToDisk(const char* nomFichier, char* buffer);
+	void writeFileToDisk(const char* nomFichier, char* buffer, int sizeExactOfBuffer);
 	/* cette fonction ecrit un fichier sur disque. si le fichier n'existe pas, il le cree. Sinon il rajoute buffer à la fin du fichier.
 	 * param nomFichier : cette chaine contient le chemin vers le repertoir où sera stocké le   fichier et le nom du fichier ex: ./APD/toto.txt
 	 *param buffer : les données qui vont etre ecrite
 	 */
-	 
  	//void writeFileToDisk1(const char* nomFichier, char* buffer);
-	void readBloc(const char* nom_fichier, char* bloc, int* curseur, int* status);
+	void readBloc(const char* nom_fichier, char* bloc, int* curseur, int* status, int sizeExactOfBuffer);
 	void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status);
 	void displayBlocs(const char* bloc);
 	int assertHostfile();
-	void getBlocsFromServers(int nbrBlocs);
+	void getBlocsFromServers(int nbrBlocs, int firstServer, char bloc[SIZE_BUFFER]);
 	void putBlocInServer(int sizeLastBLoc, int i, int server);
 
 

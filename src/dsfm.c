@@ -28,11 +28,16 @@ int main( int argc, char **argv ) {
 	//sendInfoToLB();
 	printf("\n----------\n");
 	//Le client (rang = 0) envoie le fichier en block aux serveurs de stockage ( rang = 1 , rang = 2, rang = 3)
-    sendFileToServers();
+    //sendFileToServers();
 
 	//test readBloc
-	getBlocsFromServers(4);
-
+	char buffer[SIZE_BUFFER];
+	MPI_Barrier(MPI_COMM_WORLD);
+	getBlocsFromServers(5,2,buffer);
+		//for(int i=0; i <6 ; i++)
+		//printf("Buffer %s \n",buffer);
+	
+	
     MPI_Finalize();                                 //End MPI
     
     return EXIT_SUCCESS;
