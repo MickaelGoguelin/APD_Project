@@ -10,6 +10,7 @@
 #define SERVER_2 3
 #define SERVER_3 4
 #define MAX_MACHINES 5
+#define FIRST_SERVER 2
 
 /*
  * Définition des fonctions
@@ -28,5 +29,7 @@
 	void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status);
 	void displayBlocs(const char* bloc);
 	int assertHostfile();
+	void getBlocsFromServers(int nbrBlocs);
+
 
 #endif
