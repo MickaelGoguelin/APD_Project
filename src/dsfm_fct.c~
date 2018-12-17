@@ -83,7 +83,7 @@ void sendFileToServers(){
 			sizeLastBloc = offset - (SIZE_BUFFER*nbrBlocs);
 
 			if(sizeLastBloc != 0 ){
-			char bufferRecv2[sizeLastBloc];
+			/*	char bufferRecv2[sizeLastBloc];
 			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
 				MPI_File_set_view(fh, i*SIZE_BUFFER, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
 
@@ -105,7 +105,7 @@ void sendFileToServers(){
 					sprintf(str, "%d", server);
 					writeFileToDisk(str, bufferRecv2);
 					printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
-				}
+				}*/
 
 			//putBlocInServer(sizeLastBloc, nbrBlocs, server);
 		}

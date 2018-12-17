@@ -30,7 +30,7 @@
 	void displayBlocs(const char* bloc);
 	int assertHostfile();
 	void getBlocsFromServers(int nbrBlocs);
-	void putBlocInServer(int sizeLastBLoc, int i, int server);
+	void putBlocInServer(int sizeLastBLoc, int i);
 
 
 #endif
