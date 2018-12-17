@@ -207,6 +207,10 @@ void getBlocsFromServers(int nbrBlocs, int firstServer,  char bloc[SIZE_BUFFER])
 	
 	int j = 0;
 	int sizeBuffer = SIZE_BUFFER;
+	char strFileName[200] = "";
+	strcat(strFileName, ROOT_DIR);
+	strcat(strFileName, FILENAME_GET);
+	printf(" str %s\n",str);
 	for(i=0; i<nbrBlocs; i++){	
 		sprintf(str, "%d", server);
 		char blocRecv[sizeBuffer];
@@ -235,7 +239,7 @@ void getBlocsFromServers(int nbrBlocs, int firstServer,  char bloc[SIZE_BUFFER])
 				MPI_Irecv(blocRecv, sizeBuffer, MPI_CHAR, server, 0, MPI_COMM_WORLD, &request);
 				MPI_Wait (&request, MPI_STATUS_IGNORE );	
 				printf("Je suis %d et j'ai recu %s du serveur %d\n", rank, blocRecv,server);	
-				writeFileToDisk("test1.txt",blocRecv, sizeBuffer);	
+				writeFileToDisk(strFileName,blocRecv, sizeBuffer);	
 		}
 			MPI_Barrier(MPI_COMM_WORLD);
 			server = roundRobbin(server);

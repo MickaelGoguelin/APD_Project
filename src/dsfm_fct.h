@@ -3,7 +3,8 @@
 #define ROOT_DIR "/tmp/AIR3_G5_APD/"
 #define FILENAME_LENGTH 100
 #define SIZE_BUFFER 8
-#define FILENAME "test.txt" 
+#define FILENAME "test.txt"
+#define FILENAME_GET "test1.txt" 
 #define CUSTOMER 0
 #define LB 1
 #define SERVER_1 2
