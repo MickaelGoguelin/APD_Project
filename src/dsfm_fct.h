@@ -30,6 +30,6 @@
 	int assertHostfile();
 	void getBlocsFromServers(int nbrBlocs, int firstServer, char bloc[SIZE_BUFFER]);
 	void putBlocInServer(int sizeLastBLoc, int i, int server);
-
+	int getCountBlocs(char fileName[FILENAME_LENGTH]);
 
 #endif
