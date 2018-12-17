@@ -1,5 +1,5 @@
 CC=mpicc
-CFLAGS= -Wall -g
+CFLAGS= -Wall -g -std=c99
 EXEC=dsfm
 HOST=hostfile #hostf_univ
 

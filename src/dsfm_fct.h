@@ -6,9 +6,10 @@
 #define FILENAME "test.txt" 
 #define CUSTOMER 0
 #define LB 1
-
-
-
+#define SERVER_1 2
+#define SERVER_2 3
+#define SERVER_3 4
+#define MAX_MACHINES 5
 
 /*
  * Définition des fonctions
@@ -26,5 +27,6 @@
 	void readBloc(const char* nom_fichier, char* bloc, int* curseur, int* status);
 	void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status);
 	void displayBlocs(const char* bloc);
+	int assertHostfile();
 
 #endif

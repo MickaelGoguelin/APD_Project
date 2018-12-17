@@ -18,7 +18,11 @@ int main( int argc, char **argv ) {
     MPI_Comm_rank(MPI_COMM_WORLD, &k);              //Récupération du rang
     MPI_Comm_size(MPI_COMM_WORLD, &kmax);           //Récupération du nombre de processus
     MPI_Get_processor_name(name, &size);            //Récupération du hostname
-    printf("Rang : %d\nMachine : %s\n----------\n", k, name);
+    if(k==0){
+	int test = assertHostfile();
+	printf("%d\n", test);
+    }
+    /*printf("Rang : %d\nMachine : %s\n----------\n", k, name);
 
 	//Le client (rang = 0) envoie le nombre de blocs, la taille du fichier et le nom du fichier au serveur LB ( rang = 1)
 	sendInfoToLB();

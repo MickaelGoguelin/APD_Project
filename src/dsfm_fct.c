@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 void sendFileToServers(){
 
@@ -69,16 +70,12 @@ void sendFileToServers(){
 	MPI_File_close(&fh);
  }
 
-	int roundRobbin(int server){
-		int nbrProcs;
-		//Le nombre de ps
-		MPI_Comm_size(MPI_COMM_WORLD, &nbrProcs);
-
-		server = (server + 1)%nbrProcs;
-		if(server == 0)
-			server ++;
-		return server;
-	}
+int roundRobbin(int server){
+    server = (server + 1)%MAX_MACHINES;
+    if(server == 0)
+	server ++;
+    return server;
+}
 
 	void sendInfoToLB(){
 		MPI_File fh;
@@ -223,3 +220,35 @@ void writeFileToDisk(const char* nomFichier, char* buffer)
     printf("\n");
 }
 
+int assertHostfile(){
+    int kmax, i=0;
+    FILE * f;
+    char hostfile[] = "localhost slots=1\n\
+g207-1 slots=1\n\
+g207-2 slots=1\n\
+g207-3 slots=1\n\
+g207-5 slots=1\n";
+    char * tmp;
+    char c;
+    struct stat s;
+    
+    MPI_Comm_size(MPI_COMM_WORLD, &kmax);
+    if(kmax != MAX_MACHINES)
+	return 0;
+    else {
+	f = fopen("hostf_univ", "r");
+	stat("hostf_univ", &s);
+	if(f == NULL) return 0;
+	tmp = (char*) malloc(s.st_size*sizeof(char));
+	c=(char)fgetc(f);
+	while(c!=EOF&&i<s.st_size){
+	    tmp[i]=c;
+	    c=(char)fgetc(f);
+	    i++;
+	}
+	if(strcmp(hostfile, tmp)) return 0;
+	fclose(f);
+	free(tmp);
+    }
+    return 1;
+}
