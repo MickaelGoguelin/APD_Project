@@ -17,7 +17,7 @@
 /*
  * Définition des fonctions
 */
-	void put(char fileName[FILENAME_LENGTH]);
+	void sendBlocToServers(char fileName[FILENAME_LENGTH]);
 	void sendInfoToLB(MPI_File fh, int rank, MPI_Offset offset, char fileName[FILENAME_LENGTH]);
 	int roundRobbin(int server);
 	void writeFileToDisk(const char* nomFichier, char* buffer, int sizeExactOfBuffer);

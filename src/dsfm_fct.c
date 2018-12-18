@@ -6,7 +6,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-void put(char fileName[FILENAME_LENGTH]){
+void sendBlocToServers(char fileName[FILENAME_LENGTH]){
 
 	int numprocs, rank, i;
 	int nbrBlocs;

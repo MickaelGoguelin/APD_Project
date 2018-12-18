@@ -28,7 +28,7 @@ int main( int argc, char **argv ) {
 	//sendInfoToLB();
 	printf("\n----------\n");
 	//Le client (rang = 0) envoie le fichier en block aux serveurs de stockage ( rang = 1 , rang = 2, rang = 3)
-    put(FILENAME);
+    sendBlocToServers(FILENAME);
 
 	//Récupérer les blocs depuis les serveurs
 	char buffer[SIZE_BUFFER];
