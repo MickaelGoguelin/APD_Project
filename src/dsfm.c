@@ -25,15 +25,15 @@ int main( int argc, char **argv ) {
     printf("Rang : %d\nMachine : %s\n----------\n", k, name);
 
 	//Le client (rang = 0) envoie le nombre de blocs, la taille du fichier et le nom du fichier au serveur LB ( rang = 1)
-	sendInfoToLB();
+	//sendInfoToLB();
 	printf("\n----------\n");
 	//Le client (rang = 0) envoie le fichier en block aux serveurs de stockage ( rang = 1 , rang = 2, rang = 3)
-    sendFileToServers();
+    put(FILENAME);
 
 	//Récupérer les blocs depuis les serveurs
 	char buffer[SIZE_BUFFER];
 	MPI_Barrier(MPI_COMM_WORLD);
-	getBlocsFromServers(getCountBlocs(FILENAME) + 1, FIRST_SERVER,buffer);
+	get(getCountBlocs(FILENAME) + 1, FIRST_SERVER,buffer);
 
     MPI_Finalize();                                 //End MPI
     

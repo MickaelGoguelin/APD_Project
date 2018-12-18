@@ -6,7 +6,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-void sendFileToServers(){
+void put(char fileName[FILENAME_LENGTH]){
 
 	int numprocs, rank, i;
 	int nbrBlocs;
@@ -15,9 +15,6 @@ void sendFileToServers(){
     MPI_Offset offset;
 
 	int sizeLastBloc = 0;
-
-	//Nom du fichier
-    char fileName[FILENAME_LENGTH] = FILENAME;
 
 	//Le tableau qui va contenir les morceaux du fichiers ( la taille du bloc est de 4096 octets)
 	char buffer [SIZE_BUFFER];
@@ -33,6 +30,9 @@ void sendFileToServers(){
 	
 	//La taille du fichier
     MPI_File_get_size(fh, &offset);
+	
+	//Appel de la fonction qui permet d'envoyer les information qui correspondent au fichier au serveur LB
+	sendInfoToLB(fh, rank, offset, FILENAME);
 
 	//Tester si la taille du fichier est <= SIZE_BUFFER => on envoi tout le contenu du fichier à un seul serveur
 	if(offset <= SIZE_BUFFER){
@@ -53,7 +53,7 @@ void sendFileToServers(){
 		char bufferRecv[SIZE_BUFFER];
 		char str[FILENAME_LENGTH];
 		for(i=0; i<nbrBlocs; i++){	
-			//Cette fonction va permetre de mettre un pointeur afin de divier le fichier en bloc
+			//Cette fonction va permetre de mettre un pointeur afin de diviser le fichier en bloc
 			MPI_File_set_view(fh, i*SIZE_BUFFER, MPI_CHAR, MPI_CHAR, "native", MPI_INFO_NULL);
 			//cette fonction permet d'incrementer les serveurs en tourniquet
 			server = roundRobbin(server);	
@@ -110,49 +110,44 @@ int roundRobbin(int server){
     return server;
 }
 
-	void sendInfoToLB(){
-		MPI_File fh;
-	    MPI_Offset offset, offsetRecv, nbrBlocs, nbrBlocsRecv;
-		MPI_Request request;
+void sendInfoToLB(MPI_File fh, int rank, MPI_Offset offset, char fileName[FILENAME_LENGTH]){
+	MPI_Offset offsetRecv, nbrBlocs, nbrBlocsRecv;
+	MPI_Request request;
 
-		//Le rang des ps
-		int rank;
-   		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	//Le rang des ps
+   	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-		char fileName[FILENAME_LENGTH] = FILENAME;
+	char fileNameRecv [FILENAME_LENGTH];
 
-		char fileNameRecv [FILENAME_LENGTH];
-		//Ouverture du fichier
-    	MPI_File_open(MPI_COMM_WORLD, fileName, MPI_MODE_RDONLY, MPI_INFO_NULL, &fh);
+	//La taille du fichier
+   	MPI_File_get_size(fh, &offset);
+	nbrBlocs = offset/SIZE_BUFFER;
+	offsetRecv = 0;
+
+	if( rank == CUSTOMER){
+		MPI_Isend(&offset, 1, MPI_INT, LB, 0, MPI_COMM_WORLD, &request);
+		MPI_Wait (&request, MPI_STATUS_IGNORE );
 	
-		//La taille du fichier
-    	MPI_File_get_size(fh, &offset);
-		nbrBlocs = offset/SIZE_BUFFER;
-		offsetRecv = 0;
+		MPI_Isend(fileName, FILENAME_LENGTH, MPI_CHAR, LB, 0, MPI_COMM_WORLD, &request);
+		MPI_Wait (&request, MPI_STATUS_IGNORE );
 
-		if( rank == CUSTOMER){
-			MPI_Isend(&offset, 1, MPI_INT, LB, 0, MPI_COMM_WORLD, &request);
-			MPI_Wait (&request, MPI_STATUS_IGNORE );
-	
-			MPI_Isend(fileName, FILENAME_LENGTH, MPI_CHAR, LB, 0, MPI_COMM_WORLD, &request);
-			MPI_Wait (&request, MPI_STATUS_IGNORE );
-
-			MPI_Isend(&nbrBlocs, 1, MPI_INT, LB, 0, MPI_COMM_WORLD, &request);
-			MPI_Wait ( &request, MPI_STATUS_IGNORE );
-		}else if (rank == LB){
-			MPI_Irecv(&offsetRecv, 1, MPI_INT, CUSTOMER, 0, MPI_COMM_WORLD,&request);
-			MPI_Wait (&request, MPI_STATUS_IGNORE );
-			printf("Je suis %d et j'ai reçu un fichier de taille %lld \n", rank, offsetRecv);
+		MPI_Isend(&nbrBlocs, 1, MPI_INT, LB, 0, MPI_COMM_WORLD, &request);
+		MPI_Wait ( &request, MPI_STATUS_IGNORE );
+	}else if (rank == LB){
+		MPI_Irecv(&offsetRecv, 1, MPI_INT, CUSTOMER, 0, MPI_COMM_WORLD,&request);
+		MPI_Wait (&request, MPI_STATUS_IGNORE );
+		printf("Je suis %d et j'ai reçu un fichier de taille %lld \n", rank, offsetRecv);
 		
-			MPI_Irecv(fileNameRecv, FILENAME_LENGTH, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD,&request);
-			MPI_Wait ( &request, MPI_STATUS_IGNORE );			
-			printf("Je suis %d et j'ai reçu un fichier nommé %s\n", rank, fileNameRecv);
+		MPI_Irecv(fileNameRecv, FILENAME_LENGTH, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD,&request);
+		MPI_Wait ( &request, MPI_STATUS_IGNORE );			
+		printf("Je suis %d et j'ai reçu un fichier nommé %s\n", rank, fileNameRecv);
 
-			MPI_Irecv(&nbrBlocsRecv, 1, MPI_INT, CUSTOMER, 0, MPI_COMM_WORLD,&request);
-			MPI_Wait (&request, MPI_STATUS_IGNORE );			
-			printf("Je suis %d et j'ai reçu %lld blocs\n", rank, nbrBlocsRecv);
-		}
+		MPI_Irecv(&nbrBlocsRecv, 1, MPI_INT, CUSTOMER, 0, MPI_COMM_WORLD,&request);
+		MPI_Wait (&request, MPI_STATUS_IGNORE );			
+		printf("Je suis %d et j'ai reçu %lld blocs\n", rank, nbrBlocsRecv);
 	}
+}
+
 void putBlocInServer(int sizeLastBloc, int i, int server ){
 	char bufferRecv[sizeLastBloc];
 	char buffer[sizeLastBloc];
@@ -198,7 +193,7 @@ void putBlocInServer(int sizeLastBloc, int i, int server ){
 		printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
 	}
 }
-void getBlocsFromServers(int nbrBlocs, int firstServer,  char bloc[SIZE_BUFFER]){
+void get(int nbrBlocs, int firstServer,  char bloc[SIZE_BUFFER]){
 	char str[FILENAME_LENGTH];
 	int status, rank, i, curseur;
 	int server = firstServer;
@@ -249,6 +244,8 @@ void getBlocsFromServers(int nbrBlocs, int firstServer,  char bloc[SIZE_BUFFER])
 			}
 	}
 }
+
+//Test en attendant la table de référence
 int getCountBlocs(char fileName[FILENAME_LENGTH]){
 	MPI_File fh;
     MPI_Offset offset;

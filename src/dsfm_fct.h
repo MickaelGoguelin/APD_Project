@@ -1,3 +1,4 @@
+#include <mpi.h>
 #ifndef DSFM_FCT_H
 #define DSFM_FCT_H
 #define ROOT_DIR "/tmp/AIR3_G5_APD/"
@@ -16,8 +17,8 @@
 /*
  * Définition des fonctions
 */
-	void sendFileToServers();
-	void sendInfoToLB();
+	void put(char fileName[FILENAME_LENGTH]);
+	void sendInfoToLB(MPI_File fh, int rank, MPI_Offset offset, char fileName[FILENAME_LENGTH]);
 	int roundRobbin(int server);
 	void writeFileToDisk(const char* nomFichier, char* buffer, int sizeExactOfBuffer);
 	/* cette fonction ecrit un fichier sur disque. si le fichier n'existe pas, il le cree. Sinon il rajoute buffer à la fin du fichier.
@@ -29,7 +30,7 @@
 	void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status);
 	void displayBlocs(const char* bloc);
 	int assertHostfile();
-	void getBlocsFromServers(int nbrBlocs, int firstServer, char bloc[SIZE_BUFFER]);
+	void get(int nbrBlocs, int firstServer, char bloc[SIZE_BUFFER]);
 	void putBlocInServer(int sizeLastBLoc, int i, int server);
 	int getCountBlocs(char fileName[FILENAME_LENGTH]);
 
