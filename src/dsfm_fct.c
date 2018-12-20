@@ -49,6 +49,9 @@ void put(char fileName[FILENAME_LENGTH]){
 			if(rank == i){
 				sprintf(str, "%d", i);
 				strcat(strFileName,ROOT_DIR);
+				//Attention !! il faut changer la ligne suivante avec la ligne en commentaire pour faire la distribution des fichiers dans
+				//les machines de l ecole !!!!!!!!!
+				//strcat(strFileName,FILENAME);				
 				strcat(strFileName,str);
 				//printf("file directory 1 %s\n",strFileName);
 			}
@@ -186,6 +189,9 @@ void get(char fileName[FILENAME_LENGTH]){
 		if(rank == i){
 			sprintf(str, "%d", i);
 			strcat(strFileName,ROOT_DIR);
+			//Attention !! il faut changer la ligne suivante avec la ligne en commentaire pour faire la distribution des fichiers dans
+			//les machines de l ecole !!!!!!!!!
+			//strcat(strFileName,FILENAME);
 			strcat(strFileName,str);
 			//printf("file directory 1 %s\n",strFileName);
 		}
