@@ -159,13 +159,22 @@ int getFirstServerFromLB(){
 return SERVER_1;
 }
 
-void get(int nbrBlocs, int firstServer,  char bloc[SIZE_BUFFER]){
+void get(char fileName[FILENAME_LENGTH]){
 	char str[FILENAME_LENGTH];
-	int status, rank, i, curseur;
+	char bloc[SIZE_BUFFER];
+	int status, rank, i, curseur, nbrBlocs, firstServer;
+	//A recupérer de la chaine
+	firstServer = FIRST_SERVER;
 	int server = firstServer;
+	//A recupérer de la chaine
+	int sizeFile = 34;
+	
+	//A recupérer de la chaine
+	//Nombre de blocs
+	nbrBlocs = 5;
 	//Le rang des ps
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	
+		
 	int j = 0;
 	int sizeBuffer = SIZE_BUFFER;
 
@@ -174,22 +183,13 @@ void get(int nbrBlocs, int firstServer,  char bloc[SIZE_BUFFER]){
 		sprintf(str, "%d", server);
 		char blocRecv[sizeBuffer];
 		MPI_Request request;
+		if(i == nbrBlocs-1 && sizeFile%SIZE_BUFFER != 0){
+			sizeBuffer = sizeFile%SIZE_BUFFER;
+		}
 		if(rank == server){
 				//Ce curseur va permettre de positionner un pointeur, soit à 0 si c'est le début du fichier soit à la position du second bloc
 				curseur = SIZE_BUFFER * j;
 				//Ce if permet de vérifier si on atteint le dernier bloc qui contient par exemple que 2 caractères, de retourner seulement 2 					et pas SIZE_BUFFER
-				if(i == nbrBlocs )
-					{
-						char fileName[FILENAME_LENGTH] = FILENAME;
-						MPI_File fh;
-						MPI_File_open(MPI_COMM_WORLD, fileName, MPI_MODE_RDONLY, MPI_INFO_NULL, &fh);
-							
-						//La taille du fichier
-						MPI_Offset offset;
-						MPI_File_get_size(fh, &offset);
-						//size buffer permet de recupérer la taille du dernier fichier insérer afin de ne pas insérer des caratères spéciaux à 							la fin du fichier s'il ne contient pas SIZE_BUFFER caractères
-						sizeBuffer = offset % SIZE_BUFFER;
-					}
 				readBloc(str,bloc, &curseur, &status, sizeBuffer);
 				MPI_Isend(bloc, sizeBuffer, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, &request);
 				MPI_Wait (&request, MPI_STATUS_IGNORE );			

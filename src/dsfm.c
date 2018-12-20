@@ -38,9 +38,11 @@ int main( int argc, char **argv ) {
 	if(k==0)
 		printf("Votre fichier a bien été stocké côté serveur \n----------\n");
 	//Récupérer les blocs depuis les serveurs
-	char buffer[SIZE_BUFFER];
+	/*char buffer[SIZE_BUFFER];
 	MPI_Barrier(MPI_COMM_WORLD);
-	get(getCountBlocs(FILENAME) + 1, FIRST_SERVER,buffer);
+	get(getCountBlocs(FILENAME) + 1, FIRST_SERVER,buffer);*/
+	//MPI_Barrier(MPI_COMM_WORLD);
+	get(FILENAME);
 	if(k==0)
 		printf("L'opération de récupération a été effectué avec succès: \n Votre fichier se trouve sous le répértoire %s \n----------\n",ROOT_DIR);
     MPI_Finalize();                                 //End MPI

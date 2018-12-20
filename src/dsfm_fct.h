@@ -31,7 +31,8 @@
 	void readFileFromDisk(const char* nom_fichier, char* bloc,  int* status);
 	void displayBlocs(const char* bloc);
 	int assertHostfile();
-	void get(int nbrBlocs, int firstServer, char bloc[SIZE_BUFFER]);
+	//void get(int nbrBlocs, int firstServer, char bloc[SIZE_BUFFER]);
+	void get(char fileName[FILENAME_LENGTH]);
 	void putBlocInServer(int sizeLastBLoc, int i, int server);
 	int getCountBlocs(char fileName[FILENAME_LENGTH]);
 
