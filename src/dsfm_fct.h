@@ -35,5 +35,7 @@
 	void get(char fileName[FILENAME_LENGTH]);
 	void putBlocInServer(int sizeLastBLoc, int i, int server);
 	int getCountBlocs(char fileName[FILENAME_LENGTH]);
+	int loadDictionnary();
+	int insertToDictionnary(char* nom_fichier, int nbrB, int tailleF, int roundR)
 
 #endif

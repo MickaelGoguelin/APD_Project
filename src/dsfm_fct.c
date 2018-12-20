@@ -365,3 +365,49 @@ g207-5 slots=1\n";
     return 1;
 }
 
+int insertToDictionnary(char* nom_fichier, int nbrB, int tailleF, int roundR){
+    
+   	 FILE* fichier;
+    	fichier = fopen("Dictionnaire.txt", "a");
+    
+    	if( fichier == NULL){
+        	printf("Erreur dans la creation ou l'ouverture du fichier dictionnaire.txt\n");
+        	return 0;
+    	}
+    
+    	if( 0 > fprintf(fichier,"%s %d %d %d\n", nom_fichier, nbrB, tailleF, roundR)){
+        	printf("Erreur dans l'insertion d'une ligne dans le dictionnaire\n");
+		return 0;
+	}
+    	return 1;
+}
+
+int loadDictionnary(){
+
+	FILE * dict = fopen("Dictionnaire.txt", "r");
+	char file_name[FILENAME_LENGTH];
+	int nbr_blocs, taille_fichier, round_robin;
+	if(dict == NULL)
+		exit(EXIT_FAILURE);
+	while(4 == fscanf(dict,"%s %d %d %d\n",file_name,&nbr_blocs, &taille_fichier,&round_robin)){
+		printf("%s %d %d %d\n", file_name, nbr_blocs, taille_fichier, round_robin);
+	}
+
+	if(fclose(dict) != 0){
+		printf("Fermeture du dictionnaire a echoue\n");
+		exit(EXIT_FAILURE);
+	}
+	dict = fopen("Dictionnaire.txt", "w");
+	if( dict == NULL){
+		printf("Ouverture du fichier Dictionnaire pour effacer contenu a echoue\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	if(fclose(dict) != 0){
+		printf("Fermeture du dictionnaire a echoue\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return 0;
+}
+
