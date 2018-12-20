@@ -43,9 +43,15 @@ void put(char fileName[FILENAME_LENGTH]){
 		char bufferRecv[SIZE_BUFFER];
 		char str[FILENAME_LENGTH];
 		char strFileName[200] = "";
-		int l = strlen(ROOT_DIR);
-		if(rank==CUSTOMER){
-			
+		//int l = strlen(ROOT_DIR);
+		mkdir(ROOT_DIR,0777);
+		for(i=1; i<MAX_MACHINES; i++){
+			if(rank == i){
+				sprintf(str, "%d", i);
+				strcat(strFileName,ROOT_DIR);
+				strcat(strFileName,str);
+				//printf("file directory 1 %s\n",strFileName);
+			}
 		}
 		for(i=0; i<nbrBlocs; i++){	
 			//Cette fonction va permetre de mettre un pointeur afin de diviser le fichier en bloc
@@ -62,12 +68,9 @@ void put(char fileName[FILENAME_LENGTH]){
 			if(rank == server) {
 				MPI_Recv(bufferRecv, SIZE_BUFFER, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				//Inserer dans chaque serveur des fichiers qui contiennent le contenu des blocs
-				sprintf(str, "%d", server);
-				/*
-				strcat(strFileName,ROOT_DIR);
-				strFileName[l]=(char)server;
-				strFileName[l+1]='\0';*/
-				writeFileToDisk(str, bufferRecv,SIZE_BUFFER);
+				//sprintf(str, "%d", server);
+				//printf("file directory 2 %s\n",strFileName);
+				writeFileToDisk(strFileName, bufferRecv,SIZE_BUFFER);
 				//printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
 			}
 			server = roundRobbin(server);	
@@ -91,8 +94,9 @@ void put(char fileName[FILENAME_LENGTH]){
 				if(rank == server) {
 					MPI_Recv(bufferRecv2, sizeLastBloc, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 					//Inserer dans chaque serveur des fichiers qui contiennent le contenu des blocs
-					sprintf(str, "%d", server);
-					writeFileToDisk(str, bufferRecv2, sizeLastBloc);
+					//sprintf(str, "%d", server);
+					//printf("file directory 3 %s\n",strFileName);
+					writeFileToDisk(strFileName, bufferRecv2, sizeLastBloc);
 					//printf("Je suis %d et j'ai reçu %s\n", rank, bufferRecv);
 				}
 		}
@@ -177,10 +181,17 @@ void get(char fileName[FILENAME_LENGTH]){
 		
 	int j = 0;
 	int sizeBuffer = SIZE_BUFFER;
-
-	//printf(" str %s\n",str);
+	char strFileName[200] = "";
+	for(i=1; i<MAX_MACHINES; i++){
+		if(rank == i){
+			sprintf(str, "%d", i);
+			strcat(strFileName,ROOT_DIR);
+			strcat(strFileName,str);
+			//printf("file directory 1 %s\n",strFileName);
+		}
+	}
 	for(i=0; i<nbrBlocs; i++){	
-		sprintf(str, "%d", server);
+		//sprintf(str, "%d", server);
 		char blocRecv[sizeBuffer];
 		MPI_Request request;
 		if(i == nbrBlocs-1 && sizeFile%SIZE_BUFFER != 0){
@@ -190,7 +201,7 @@ void get(char fileName[FILENAME_LENGTH]){
 				//Ce curseur va permettre de positionner un pointeur, soit à 0 si c'est le début du fichier soit à la position du second bloc
 				curseur = SIZE_BUFFER * j;
 				//Ce if permet de vérifier si on atteint le dernier bloc qui contient par exemple que 2 caractères, de retourner seulement 2 					et pas SIZE_BUFFER
-				readBloc(str,bloc, &curseur, &status, sizeBuffer);
+				readBloc(strFileName,bloc, &curseur, &status, sizeBuffer);
 				MPI_Isend(bloc, sizeBuffer, MPI_CHAR, CUSTOMER, 0, MPI_COMM_WORLD, &request);
 				MPI_Wait (&request, MPI_STATUS_IGNORE );			
 				//printf("Je suis %d et j'ai envoye %s au serveur %d\n", rank, bloc,server);
